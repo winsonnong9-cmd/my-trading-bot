@@ -49,3 +49,31 @@ def run_my_bot():
 
 if __name__ == "__main__":
     run_my_bot()
+import requests
+def send_line(message):
+    url = "https://api.line.me/v2/bot/message/push"
+    
+    USER_ID = "U223dd700347973c0b206a79dfd1184fa"
+    ACCESS_TOKEN = "XxhNYPMkVHUQeSxk2nL50VSaWgidP/tDwC+c5xpOkWI1y6ao/OwPe2wAKVjC5xSm1qiJm+XF1nmuMdA96DP0xByFGelK/xM48CBqeyuvPPVFt0Tr2QEUl2i6kXpC6ECsTegzpQw2e85wPMkl/rGUjgdB04t89/1O/w1cDnyilFU="
+    
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {ACCESS_TOKEN}"
+    }
+    
+    payload = {
+        "to": USER_ID,
+        "messages": [
+            {
+                "type": "text",
+                "text": message
+            }
+        ]
+    }
+    
+    response = requests.post(url, json=payload, headers=headers)
+    return response.status_code
+
+# บรรทัดส่งท้าย: เรียกใช้งานฟังก์ชันส่งเข้า LINE 
+# (แก้คำว่า result_text ให้ตรงกับตัวแปรที่เก็บข้อความสรุปของบอทคุณนะ)
+send_line(f"🤖 ผลการวิเคราะห์จาก Cloud วันนี้:\n{result_text}")
