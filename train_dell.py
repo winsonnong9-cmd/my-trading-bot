@@ -5,30 +5,30 @@ import joblib
 from sklearn.ensemble import RandomForestClassifier
 
 # ดึงข้อมูลย้อนหลัง 10 ปี
-tsm_data = yf.download("TSM", start="2016-01-01", end="2026-06-01")
+dell_data = yf.download("DELL", start="2016-01-01", end="2026-06-01")
 spx_data = yf.download("^GSPC", start="2016-01-01", end="2026-06-01")
 
-for df in [tsm_data, spx_data]:
+for df in [dell_data, spx_data]:
     if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
 
 # คำนวณอินดิเคเตอร์
-tsm_data['TSM_RSI'] = ta.rsi(tsm_data['Close'], length=14)
-tsm_data['EMA_10'] = ta.ema(tsm_data['Close'], length=10)
-tsm_data['EMA_50'] = ta.ema(tsm_data['Close'], length=50)
+dell_data['DELL_RSI'] = ta.rsi(dell_data['Close'], length=14)
+dell_data['EMA_10'] = ta.ema(dell_data['Close'], length=10)
+dell_data['EMA_50'] = ta.ema(dell_data['Close'], length=50)
 spx_data['SPX_RSI'] = ta.rsi(spx_data['Close'], length=14)
 spx_data['SPX_EMA50'] = ta.ema(spx_data['Close'], length=50)
 spx_data['SPX_Trend'] = (spx_data['Close'] > spx_data['SPX_EMA50']).astype(int)
 
-df = tsm_data.join(spx_data[['SPX_RSI', 'SPX_Trend']], how='inner')
+df = dell_data.join(spx_data[['SPX_RSI', 'SPX_Trend']], how='inner')
 
-# 🔥 จุดสำคัญ: ใช้ .shift(-7) เพื่อให้ AI เรียนรู้ที่จะทำนายอนาคตอีก 7 วันข้างหน้า!
+# 🔥 จุดสำคัญ: มองอนาคตอีก 7 วันข้างหน้าของ DELL
 df['Target'] = (df['Close'].shift(-7) > df['Close']).astype(int)
 
-features = ['TSM_RSI', 'EMA_10', 'EMA_50', 'SPX_RSI', 'SPX_Trend']
+features = ['DELL_RSI', 'EMA_10', 'EMA_50', 'SPX_RSI', 'SPX_Trend']
 df = df.dropna(subset=features + ['Target'])
 
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(df[features], df['Target'])
 
-joblib.dump({'model': model, 'features': features}, 'tsm_bot_brain.joblib')
-print("✨ เซฟไฟล์ 'tsm_bot_brain.joblib' สำเร็จ!")
+joblib.dump({'model': model, 'features': features}, 'dell_bot_brain.joblib')
+print("✨ เซฟไฟล์ 'dell_bot_brain.joblib' สำเร็จ!")
